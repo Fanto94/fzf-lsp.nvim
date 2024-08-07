@@ -18,11 +18,31 @@ local kind_to_color = {
 
 local M = {}
 
+-- platform detection {{{
+local is_windows = vim.loop.os_uname().version:match 'Windows'
+-- }}}
+
 -- binary paths {{{
 local __file = debug.getinfo(1, "S").source:match("@(.*)$")
 assert(__file ~= nil)
-local bin_dir = fn.fnamemodify(__file, ":p:h:h") .. "/bin"
-local bin = { preview = (bin_dir .. "/preview.sh") }
+local bin_dir = fn.fnamemodify(__file, ":p:h:h")
+local preview_cmd = ''
+if (is_windows) then
+  bin_dir = fn.substitute(bin_dir, '\\', '/', 'g') .. "/bin"
+  preview_cmd = bin_dir .. "/preview.sh"
+  -- Find gitbash, get shorter the path and convert it to forward slash
+  local gitbash = fn.substitute(
+    fn.system('where.exe bash | awk "/[Gg]it/ {print}" | tr -d "\\r\\n"'),
+    '\\n', '', ''
+  )
+  gitbash = fn.split(fn.system('for %A in ("' .. gitbash .. '") do @echo %~sA'), "\\n")[1]
+  gitbash = fn.substitute(gitbash, '\\', '/', 'g')
+  preview_cmd = gitbash .. ' ' .. preview_cmd
+else
+  bin_dir = bin_dir .. "/bin"
+  preview_cmd = bin_dir .. "/preview.sh"
+end
+local bin = { preview = preview_cmd }
 -- }}}
 
 -- utility functions {{{
