@@ -367,6 +367,9 @@ local function common_sink(infile, lines)
   action = action or "e"
 
   for _, loc in ipairs(locations) do
+    -- Add current position to jumplist
+    vim.cmd("normal! m'")
+
     local edit_infile = (
       (infile or fn.expand("%:~:.") == loc["filename"]) and
       (action == "e" or action == "edit")
