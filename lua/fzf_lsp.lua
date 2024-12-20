@@ -436,7 +436,7 @@ local function fzf_locations(bang, header, prompt, source, infile)
     )
   end
 
-  local options = { 
+  local options = {
     "--ansi",
     "--multi",
     "--bind",
@@ -745,7 +745,12 @@ function M.incoming_calls(bang, opts)
     return
   end
 
-  local params = vim.lsp.util.make_position_params()
+  local params = {
+    item = {
+      uri = vim.lsp.util.make_text_document_params().uri,
+      range = vim.lsp.util.make_range_params(0, "utf-8").range,
+    }
+  }
   call_sync(
     "callHierarchy/incomingCalls", params, opts, partial(incoming_calls_handler, bang)
   )
@@ -756,7 +761,12 @@ function M.outgoing_calls(bang, opts)
     return
   end
 
-  local params = vim.lsp.util.make_position_params()
+  local params = {
+    item = {
+      uri = vim.lsp.util.make_text_document_params().uri,
+      range = vim.lsp.util.make_range_params(0, "utf-8").range,
+    }
+  }
   call_sync(
     "callHierarchy/outgoingCalls", params, opts, partial(outgoing_calls_handler, bang)
   )
