@@ -9,6 +9,12 @@ if (Get-PSDrive -LiteralName $segments[0] -PSProvider FileSystem -ErrorAction Si
 } else {
   $FILE = $segments[0]
   $CENTER = $segments[1]
+
+  # Expand references to home directory `~`
+  $FILE = if ($FILE -eq '~') { $HOME } else { $FILE }
+  if ("$FILE" -like '~*') {
+    $FILE = $HOME + $FILE.Substring(1)
+  }
 }
 
 if (-Not $CENTER) {
