@@ -29,7 +29,7 @@ local bin_dir = fn.fnamemodify(__file, ":p:h:h")
 local preview_cmd = ''
 if (is_windows) then
   bin_dir = fn.substitute(bin_dir, '\\', '/', 'g') .. "/bin"
-  preview_cmd = 'powershell.exe -NoLogo -NonInteractive -NoProfile -File ' .. bin_dir .. "/preview.ps1"
+  preview_cmd = 'powershell.exe -NoLogo -NonInteractive -NoProfile -ExecutionPolicy Bypass -File ' .. bin_dir .. "/preview.ps1"
 else
   bin_dir = bin_dir .. "/bin"
   preview_cmd = bin_dir .. "/preview.sh"
