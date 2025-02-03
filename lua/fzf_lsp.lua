@@ -115,8 +115,8 @@ local function call_sync(method, params, opts, handler)
   handler(err, extract_result(results_lsp), ctx, nil)
 end
 
-local function check_capabilities(provider, client_id)
-  local clients = vim.lsp.buf_get_clients(client_id or 0)
+local function check_capabilities(provider, bufnr)
+  local clients = vim.lsp.get_clients({ bufnr = bufnr or 0 })
 
   local supported_client = false
   for _, client in pairs(clients) do
