@@ -46,10 +46,9 @@ if (Get-Command -Name 'bat' -All -ErrorAction SilentlyContinue) {
   bat --style="$BAT_STYLE" --color=always --highlight-line="$CENTER" `
     --line-range="${UP}:${DOWN}" "$FILE"
 } else {
-  # TODO: Investigate how to translate the following to native powershell
-  # HIGHLIGHT="$([ -n "$CENTER" ] && printf "${CENTER}s/.*/${CAT_ANSI_HIGHLIGHT:-\e[7m}\\\\0\e[0m/;" || true)"
-  # cat ${CAT_STYLE:-"-n"} "$FILE" | sed -n "${HIGHLIGHT} ${UP},${DOWN}p"
-
-  Get-Content -LiteralPath $FILE
+  # Shows an arrow `>` on the matching line
+  # Caveats, more than one line can match
+  $line_highlight = Get-Content -LiteralPath $FILE | Select-Object -Index ($CENTER - 1)
+  Get-Content -LiteralPath $FILE | Select-String -SimpleMatch $line_highlight -Context $UP,$DOWN
 }
 
