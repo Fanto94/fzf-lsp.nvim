@@ -448,7 +448,7 @@ local function fzf_locations(bang, header, prompt, source, infile)
     )
   end
 
-  local options = { 
+  local options = {
     "--ansi",
     "--multi",
     "--bind",
