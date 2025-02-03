@@ -25,16 +25,15 @@ local is_windows = vim.env.OS == 'Windows_NT'
 -- binary paths {{{
 local __file = debug.getinfo(1, "S").source:match("@(.*)$")
 assert(__file ~= nil)
-local bin_dir = fn.fnamemodify(__file, ":p:h:h")
-local preview_cmd = ''
+local bin_dir = fn.fnamemodify(__file, ":p:h:h") .. "/bin"
+local preview_command = ''
 if (is_windows) then
-  bin_dir = fn.substitute(bin_dir, '\\', '/', 'g') .. "/bin"
-  preview_cmd = 'powershell.exe -NoLogo -NonInteractive -NoProfile -ExecutionPolicy Bypass -File ' .. bin_dir .. "/preview.ps1"
+  bin_dir = fn.substitute(bin_dir, '\\', '/', 'g') -- Ensure use of forward slash
+  preview_command = 'powershell.exe -NoLogo -NonInteractive -NoProfile -ExecutionPolicy Bypass -File ' .. bin_dir .. "/preview.ps1"
 else
-  bin_dir = bin_dir .. "/bin"
-  preview_cmd = bin_dir .. "/preview.sh"
+  preview_command = bin_dir .. "/preview.sh"
 end
-local bin = { preview = preview_cmd }
+local bin = { preview = preview_command }
 -- }}}
 
 -- utility functions {{{
