@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env sh
+
 set -eu
 
 FILE="${1%%:*}"
@@ -8,7 +9,7 @@ case "${FILE%%/*}" in
 esac
 
 if [ ! -r "$FILE" ]; then
-  printf "File not found ${FILE}\n" 2> /dev/stderr
+  printf '%s' "File not found ${FILE}\n" 2> /dev/stderr
   exit 1
 fi
 
@@ -32,3 +33,4 @@ else
   HIGHLIGHT="$([ -n "$CENTER" ] && printf "${CENTER}s/.*/${CAT_ANSI_HIGHLIGHT:-\e[7m}\\\\0\e[0m/;" || true)"
   cat ${CAT_STYLE:-"-n"} "$FILE" | sed -n "${HIGHLIGHT} ${UP},${DOWN}p"
 fi
+

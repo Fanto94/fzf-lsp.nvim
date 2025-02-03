@@ -18,11 +18,22 @@ local kind_to_color = {
 
 local M = {}
 
+-- platform detection {{{
+local is_windows = vim.env.OS == 'Windows_NT'
+-- }}}
+
 -- binary paths {{{
 local __file = debug.getinfo(1, "S").source:match("@(.*)$")
 assert(__file ~= nil)
 local bin_dir = fn.fnamemodify(__file, ":p:h:h") .. "/bin"
-local bin = { preview = (bin_dir .. "/preview.sh") }
+local preview_command = ''
+if (is_windows) then
+  bin_dir = fn.substitute(bin_dir, '\\', '/', 'g') -- Ensure use of forward slash
+  preview_command = 'powershell.exe -NoLogo -NonInteractive -NoProfile -ExecutionPolicy Bypass -File ' .. bin_dir .. "/preview.ps1"
+else
+  preview_command = bin_dir .. "/preview.sh"
+end
+local bin = { preview = preview_command }
 -- }}}
 
 -- utility functions {{{
@@ -104,8 +115,8 @@ local function call_sync(method, params, opts, handler)
   handler(err, extract_result(results_lsp), ctx, nil)
 end
 
-local function check_capabilities(provider, client_id)
-  local clients = vim.lsp.buf_get_clients(client_id or 0)
+local function check_capabilities(provider, bufnr)
+  local clients = vim.lsp.get_clients({ bufnr = bufnr or 0 })
 
   local supported_client = false
   for _, client in pairs(clients) do
@@ -436,11 +447,21 @@ local function fzf_locations(bang, header, prompt, source, infile)
     )
   end
 
-  local options = { 
+  local options = {
+    "--cycle",
     "--ansi",
     "--multi",
     "--bind",
     "ctrl-a:select-all,ctrl-d:deselect-all",
+    "--bind",
+    "alt-up:preview-page-up,alt-down:preview-page-down",
+    "--bind",
+    "alt-a:select-all,alt-d:deselect-all",
+    "--bind", "alt-f:first",
+    "--bind", "alt-l:last",
+    "--bind", "alt-a:select-all",
+    "--bind", "alt-d:deselect-all",
+    "--bind", "ctrl-l:change-preview-window(down|hidden|)",
   }
   if string.len(prompt) > 0 then
     table.insert(options, "--prompt")
