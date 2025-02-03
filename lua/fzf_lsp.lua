@@ -448,10 +448,20 @@ local function fzf_locations(bang, header, prompt, source, infile)
   end
 
   local options = {
+    "--cycle",
     "--ansi",
     "--multi",
     "--bind",
     "ctrl-a:select-all,ctrl-d:deselect-all",
+    "--bind",
+    "alt-up:preview-page-up,alt-down:preview-page-down",
+    "--bind",
+    "alt-a:select-all,alt-d:deselect-all",
+    "--bind", "alt-f:first",
+    "--bind", "alt-l:last",
+    "--bind", "alt-a:select-all",
+    "--bind", "alt-d:deselect-all",
+    "--bind", "ctrl-l:change-preview-window(down|hidden|)",
   }
   if string.len(prompt) > 0 then
     table.insert(options, "--prompt")
