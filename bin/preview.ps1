@@ -30,7 +30,7 @@ try {
 
 [int]$LINES = 0
 try {
-  [int]$LINES = if ($env:LINES) { [int]$env:LINES } { 100 }
+  [int]$LINES = if ($env:LINES) { [int]$env:LINES } else { 100 }
 } catch {
   [int]$LINES = 100
   Write-Error "Invalid lines: $env:LINES"
@@ -46,9 +46,27 @@ if (Get-Command -Name 'bat' -All -ErrorAction SilentlyContinue) {
   bat --style="$BAT_STYLE" --color=always --highlight-line="$CENTER" `
     --line-range="${UP}:${DOWN}" "$FILE"
 } else {
-  # Shows an arrow `>` on the matching line
-  # Caveats, more than one line can match
+  $UP = if ($UP -eq 1) { 0 } else { $UP - 1 }
+  $REVERSE = "$([char]27)[7m"
+  $RESET = "$([char]27)[27m"
+
+  # Do not print first line unless CENTER is at least line 2
+  if ($CENTER -eq 2) { # line 2 index 1
+    Get-Content -LiteralPath $FILE | Select-Object -Index 0
+  } elseif ($CENTER -gt 2) { # At minimum line 3, index 2
+    Get-Content -LiteralPath $FILE | Select-Object -Index ($UP..($CENTER - 2))
+  }
   $line_highlight = Get-Content -LiteralPath $FILE | Select-Object -Index ($CENTER - 1)
-  Get-Content -LiteralPath $FILE | Select-String -SimpleMatch $line_highlight -Context $UP,$DOWN
+  Write-Output "${REVERSE}${line_highlight}${RESET}" # highlight
+  Get-Content -LiteralPath $FILE | Select-Object -Index ($CENTER..$DOWN)
+
+  # TODO: Evaluate if doing string comparisons would be more efficient
+  # Get-Content -LiteralPath $FILE | Select-Object -Index ($UP..$DOWN) |
+  #   ForEach-Object {
+  #     if ($_ -eq $line_highlight) {
+  #       return Write-Output "${REVERSE}${line_highlight}${RESET}"
+  #     }
+  #     $_
+  #   }
 }
 
