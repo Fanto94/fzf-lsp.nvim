@@ -50,23 +50,16 @@ if (Get-Command -Name 'bat' -All -ErrorAction SilentlyContinue) {
   $REVERSE = "$([char]27)[7m"
   $RESET = "$([char]27)[27m"
 
-  # Do not print first line unless CENTER is at least line 2
-  if ($CENTER -eq 2) { # line 2 index 1
-    Get-Content -LiteralPath $FILE | Select-Object -Index 0
-  } elseif ($CENTER -gt 2) { # At minimum line 3, index 2
-    Get-Content -LiteralPath $FILE | Select-Object -Index ($UP..($CENTER - 2))
-  }
+  # Line to highlight
   $line_highlight = Get-Content -LiteralPath $FILE | Select-Object -Index ($CENTER - 1)
-  Write-Output "${REVERSE}${line_highlight}${RESET}" # highlight
-  Get-Content -LiteralPath $FILE | Select-Object -Index ($CENTER..$DOWN)
+  # Get lines for preview, highlight matching line
+  Get-Content -LiteralPath $FILE | Select-Object -Index ($UP..$DOWN) |
+    ForEach-Object {
+      if ($_ -eq $line_highlight) {
+        return Write-Output "${REVERSE}${line_highlight}${RESET}"
+      }
 
-  # TODO: Evaluate if doing string comparisons would be more efficient
-  # Get-Content -LiteralPath $FILE | Select-Object -Index ($UP..$DOWN) |
-  #   ForEach-Object {
-  #     if ($_ -eq $line_highlight) {
-  #       return Write-Output "${REVERSE}${line_highlight}${RESET}"
-  #     }
-  #     $_
-  #   }
+      return $_
+    }
 }
 
